@@ -9,13 +9,15 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="NeoCrypto">
     
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         :root {
-            /* Нова кольорова гама: Темно-синій FinTech */
-            --bg-gradient: linear-gradient(135deg, #0B0E14 0%, #1A2130 100%);
+            var(--bg-gradient): linear-gradient(135deg, #0B0E14 0%, #1A2130 100%);
+            --bg-color: #0B0E14;
             --card-bg: rgba(255, 255, 255, 0.03);
             --card-border: rgba(255, 255, 255, 0.08);
-            --accent-color: #00E5FF; /* Неоновий блакитний */
+            --accent-color: #00E5FF; 
             --danger-color: #FF2A55;
             --success-color: #00FF88;
             --text-color: #F8FAFC;
@@ -25,7 +27,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
         
         body { 
-            background: var(--bg-gradient); 
+            background: linear-gradient(135deg, #0B0E14 0%, #1A2130 100%); 
             color: var(--text-color); 
             padding-top: env(safe-area-inset-top); 
             padding-bottom: calc(90px + env(safe-area-inset-bottom)); 
@@ -43,7 +45,6 @@
             to { opacity: 1; transform: translateY(0); } 
         }
 
-        /* Нові картки Glassmorphism */
         .widget { 
             background: var(--card-bg); 
             backdrop-filter: blur(12px); 
@@ -55,9 +56,18 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
 
-        .balance-title { font-size: 13px; color: var(--text-secondary); font-weight: 500; letter-spacing: 0.5px; }
-        .balance-value { font-size: 38px; font-weight: 800; margin: 8px 0; background: linear-gradient(90deg, #fff, #94A3B8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .balance-title { font-size: 13px; color: var(--text-secondary); font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px;}
+        .balance-value { font-size: 38px; font-weight: 800; margin-bottom: 5px; background: linear-gradient(90deg, #fff, #94A3B8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
+        /* Сітка для міні-віджетів */
+        .widget-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .mini-widget { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 15px; text-align: center; }
+        .mini-widget .val { font-size: 20px; font-weight: 700; color: var(--accent-color); margin-bottom: 4px; }
+        .mini-widget .lbl { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; }
+
+        /* Контейнер для графіка */
+        .chart-container { position: relative; height: 220px; width: 100%; margin-top: 10px; }
+
         /* Ринок */
         .segmented-control { display: flex; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 4px; margin-bottom: 20px; border: 1px solid var(--card-border); }
         .segment-btn { flex: 1; text-align: center; padding: 10px; border-radius: 8px; font-size: 14px; color: var(--text-secondary); font-weight: 600; transition: all 0.3s; }
@@ -90,7 +100,7 @@
 
         .tradingview-container { height: 480px; width: 100%; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
 
-        /* Навігація Floating Bottom Bar */
+        /* Навігація */
         .bottom-nav { position: fixed; bottom: env(safe-area-inset-bottom); left: 15px; right: 15px; height: 70px; background: rgba(11, 14, 20, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--card-border); border-radius: 25px; display: flex; justify-content: space-around; align-items: center; z-index: 999; margin-bottom: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 10px; font-weight: 600; width: 25%; background: none; border: none; transition: 0.3s; }
         .nav-item.active { color: var(--accent-color); transform: translateY(-3px); }
@@ -104,10 +114,29 @@
     </header>
 
     <div id="screen-dashboard" class="app-screen active">
-        <div class="widget">
-            <div class="balance-title">ЗАГАЛЬНИЙ БАЛАНС</div>
+        <div class="widget" style="text-align: center;">
+            <div class="balance-title">Мій Баланс</div>
             <div class="balance-value" id="total-balance">$0.00</div>
         </div>
+
+        <div class="widget-grid">
+            <div class="mini-widget">
+                <div class="val" id="asset-count">0</div>
+                <div class="lbl">Монет у портфелі</div>
+            </div>
+            <div class="mini-widget">
+                <div class="val" id="top-asset" style="color: #F8FAFC;">-</div>
+                <div class="lbl">Найбільший актив</div>
+            </div>
+        </div>
+
+        <div class="widget">
+            <div class="balance-title">Розподіл портфеля</div>
+            <div class="chart-container">
+                <canvas id="portfolioChart"></canvas>
+            </div>
+        </div>
+
         <div class="widget" style="padding: 0; height: 250px; overflow: hidden; border: none;">
             <iframe src="https://s.tradingview.com/embed-widget/markets/?locale=uk#%7B%22filter%22%3A%22crypto%22%2C%22colorTheme%22%3A%22dark%22%2C%22width%22%3A%22100%25%22%2C%22height%22%3A%22100%25%22%7D" style="width: 100%; height: 100%; border: none;"></iframe>
         </div>
@@ -118,13 +147,11 @@
             <div class="segment-btn active" onclick="setMarketView('all', this)">Топ 100</div>
             <div class="segment-btn" onclick="setMarketView('fav', this)">Збережені</div>
         </div>
-
         <div class="sort-controls">
             <button class="sort-btn active" onclick="sortMarket('rank', this)">Капіталізація</button>
             <button class="sort-btn" onclick="sortMarket('price', this)">Ціна</button>
             <button class="sort-btn" onclick="sortMarket('change', this)">Зміна (24h)</button>
         </div>
-
         <div class="widget" style="padding: 10px 15px;">
             <div id="market-loading" style="text-align: center; padding: 20px; color: var(--text-secondary);">Оновлення даних...</div>
             <div id="market-list"></div>
@@ -142,16 +169,16 @@
             <h3 style="margin-bottom: 20px; font-weight: 700;">Нова транзакція</h3>
             <form id="crypto-form">
                 <div class="input-group">
-                    <input type="text" id="coin-name" placeholder="Пошук монети..." autocomplete="off" required>
+                    <input type="text" id="coin-name" placeholder="Пошук монети (напр. BTC)..." autocomplete="off" required>
                     <div id="autocomplete-results" class="autocomplete-dropdown"></div>
                 </div>
                 <div class="input-group">
-                    <input type="number" step="any" id="coin-price" placeholder="Ціна ($)" required>
+                    <input type="number" step="any" id="coin-price" placeholder="Ціна покупки ($)" required>
                 </div>
                 <div class="input-group">
-                    <input type="number" step="any" id="coin-amount" placeholder="Кількість" required>
+                    <input type="number" step="any" id="coin-amount" placeholder="Кількість монет" required>
                 </div>
-                <button type="submit" class="btn-submit">Зберегти актив</button>
+                <button type="submit" class="btn-submit">Додати актив</button>
             </form>
         </div>
 
@@ -181,12 +208,12 @@
     </nav>
 
     <script>
-        // Логіка залишається такою ж, як і в попередній версії
         let marketData = [];
         let currentMarketView = 'all';
         let currentSort = 'rank';
         let myFavorites = JSON.parse(localStorage.getItem('myFavorites')) || [];
         let myPortfolio = JSON.parse(localStorage.getItem('myCryptoPortfolio')) || [];
+        let chartInstance = null; // Змінна для графіка
 
         function switchScreen(screenId, title, element) {
             document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
@@ -196,6 +223,139 @@
             element.classList.add('active');
         }
 
+        // --- ЛОГІКА ВІДМАЛЬОВКИ ГРАФІКА ТА ВІДЖЕТІВ ---
+        function renderDashboardWidgets(totalInvested) {
+            document.getElementById('total-balance').innerText = `$${totalInvested.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('asset-count').innerText = myPortfolio.length;
+
+            // Знаходимо найбільший актив
+            let topAsset = '-';
+            if (myPortfolio.length > 0) {
+                let maxAsset = myPortfolio.reduce((prev, current) => (prev.amount * prev.price > current.amount * current.price) ? prev : current);
+                topAsset = maxAsset.name;
+            }
+            document.getElementById('top-asset').innerText = topAsset;
+
+            // Дані для графіка Chart.js
+            const ctx = document.getElementById('portfolioChart').getContext('2d');
+            
+            let labels = myPortfolio.map(item => item.name);
+            let dataValues = myPortfolio.map(item => item.amount * item.price);
+            let bgColors = ['#00E5FF', '#00FF88', '#FFD700', '#FF2A55', '#9B51E0', '#FF8A65', '#4FC3F7'];
+
+            if (dataValues.length === 0) {
+                labels = ['Немає даних'];
+                dataValues = [1];
+                bgColors = ['#1A2130']; // Темний колір, якщо порожньо
+            }
+
+            if (chartInstance) {
+                chartInstance.destroy(); // Видаляємо старий графік перед створенням нового
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: bgColors,
+                        borderWidth: 1,
+                        borderColor: '#0B0E14'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%', // Товщина кільця
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { color: '#F8FAFC', font: { size: 12, family: 'sans-serif' }, boxWidth: 12 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if(dataValues.length === 1 && labels[0] === 'Немає даних') return ' Портфель порожній';
+                                    let value = context.raw;
+                                    return ' $' + value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- ЛОГІКА ПОРТФЕЛЯ ---
+        function updatePortfolioUI() {
+            const list = document.getElementById('portfolio-list');
+            list.innerHTML = '';
+            let totalInvested = 0;
+
+            if (myPortfolio.length === 0) {
+                list.innerHTML = '<div style="color:var(--text-secondary); text-align:center; margin-top:10px;">Портфель порожній</div>';
+            }
+
+            // Групуємо активи з однаковою назвою
+            let groupedPortfolio = {};
+            myPortfolio.forEach(item => {
+                if(groupedPortfolio[item.name]) {
+                    groupedPortfolio[item.name].amount += item.amount;
+                    // Рахуємо середню ціну
+                    groupedPortfolio[item.name].value += (item.amount * item.price);
+                } else {
+                    groupedPortfolio[item.name] = { amount: item.amount, value: item.amount * item.price, originalPrice: item.price };
+                }
+            });
+
+            // Відмальовуємо список
+            myPortfolio.forEach((item, index) => {
+                const itemValue = item.amount * item.price;
+                totalInvested += itemValue;
+
+                const div = document.createElement('div');
+                div.className = 'coin-item';
+                div.innerHTML = `
+                    <div>
+                        <strong style="font-size:16px;">${item.name}</strong><br>
+                        <span style="font-size:12px; color:var(--text-secondary);">${item.amount} шт. по $${item.price}</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <strong style="font-size:16px;">$${itemValue.toFixed(2)}</strong><br>
+                        <span class="text-red" style="font-size:12px; cursor:pointer;" onclick="deletePortfolioItem(${index})">Видалити</span>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+
+            // Оновлюємо дашборд та графік
+            renderDashboardWidgets(totalInvested);
+        }
+
+        document.getElementById('crypto-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newAsset = {
+                name: document.getElementById('coin-name').value.toUpperCase(),
+                price: parseFloat(document.getElementById('coin-price').value),
+                amount: parseFloat(document.getElementById('coin-amount').value)
+            };
+            myPortfolio.push(newAsset);
+            localStorage.setItem('myCryptoPortfolio', JSON.stringify(myPortfolio));
+            this.reset();
+            updatePortfolioUI();
+            
+            // Після додавання автоматично перекидаємо на головний екран, щоб побачити графік
+            switchScreen('dashboard', 'Огляд', document.querySelector('.nav-item.active'));
+        });
+
+        window.deletePortfolioItem = function(index) {
+            myPortfolio.splice(index, 1);
+            localStorage.setItem('myCryptoPortfolio', JSON.stringify(myPortfolio));
+            updatePortfolioUI();
+        }
+
+        // --- РИНОК ТА АВТОЗАПОВНЕННЯ (без змін) ---
         async function fetchMarketData() {
             try {
                 const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false');
@@ -299,64 +459,12 @@
 
         document.addEventListener('click', (e) => { if (!searchInput.contains(e.target) && !acDropdown.contains(e.target)) acDropdown.style.display = 'none'; });
 
-        function updatePortfolioUI() {
-            const list = document.getElementById('portfolio-list');
-            list.innerHTML = '';
-            let totalInvested = 0;
-
-            if (myPortfolio.length === 0) {
-                list.innerHTML = '<div style="color:var(--text-secondary); text-align:center; margin-top:10px;">Портфель порожній</div>';
-            }
-
-            myPortfolio.forEach((item, index) => {
-                const itemValue = item.amount * item.price;
-                totalInvested += itemValue;
-
-                const div = document.createElement('div');
-                div.className = 'coin-item';
-                div.innerHTML = `
-                    <div>
-                        <strong style="font-size:16px;">${item.name}</strong><br>
-                        <span style="font-size:12px; color:var(--text-secondary);">${item.amount} шт. по $${item.price}</span>
-                    </div>
-                    <div style="text-align: right;">
-                        <strong style="font-size:16px;">$${itemValue.toFixed(2)}</strong><br>
-                        <span class="text-red" style="font-size:12px; cursor:pointer;" onclick="deletePortfolioItem(${index})">Видалити</span>
-                    </div>
-                `;
-                list.appendChild(div);
-            });
-
-            document.getElementById('total-balance').innerText = `$${totalInvested.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-        }
-
-        document.getElementById('crypto-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const newAsset = {
-                name: document.getElementById('coin-name').value.toUpperCase(),
-                price: parseFloat(document.getElementById('coin-price').value),
-                amount: parseFloat(document.getElementById('coin-amount').value)
-            };
-            myPortfolio.push(newAsset);
-            localStorage.setItem('myCryptoPortfolio', JSON.stringify(myPortfolio));
-            this.reset();
-            updatePortfolioUI();
-        });
-
-        window.deletePortfolioItem = function(index) {
-            myPortfolio.splice(index, 1);
-            localStorage.setItem('myCryptoPortfolio', JSON.stringify(myPortfolio));
-            updatePortfolioUI();
-        }
-
+        // --- ІНІЦІАЛІЗАЦІЯ ---
         updatePortfolioUI();
         fetchMarketData();
 
-        // Оновлена реєстрація Service Worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-                .then(() => console.log('SW Registered'))
-                .catch(err => console.log('SW Error:', err));
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Error:', err));
         }
     </script>
 </body>
