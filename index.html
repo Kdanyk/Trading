@@ -18,8 +18,6 @@
             --card-bg: rgba(255, 255, 255, 0.03);
             --card-border: rgba(255, 255, 255, 0.08);
             --accent-color: #00E5FF; 
-            --ai-color: #4285F4;
-            --ai-glow: rgba(66, 133, 244, 0.4);
             --danger-color: #FF2A55;
             --success-color: #00FF88;
             --text-color: #F8FAFC;
@@ -63,27 +61,16 @@
         input { width: 100%; padding: 16px; background: rgba(0,0,0,0.2); border: 1px solid var(--card-border); border-radius: 12px; color: white; font-size: 16px; transition: border-color 0.3s; }
         input:focus { outline: none; border-color: var(--accent-color); }
         button.btn-submit { background: var(--accent-color); color: #000; font-weight: 700; border: none; padding: 16px; width: 100%; border-radius: 12px; font-size: 16px; margin-top: 10px; box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3); cursor: pointer;}
-        button.btn-ai { background: var(--ai-color); color: #fff; box-shadow: 0 4px 15px var(--ai-glow); }
 
         .autocomplete-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #1A2130; border: 1px solid var(--card-border); border-radius: 12px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.5); margin-top: 8px;}
         .ac-item { padding: 14px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 12px; font-size: 14px; }
         
         .tradingview-container { height: 480px; width: 100%; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
 
-        /* --- СТИЛІ ДЛЯ ЧАТУ З ШІ --- */
-        .chat-container { height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding-bottom: 10px; scrollbar-width: none; }
-        .chat-container::-webkit-scrollbar { display: none; }
-        .chat-msg { padding: 14px 18px; border-radius: 18px; max-width: 85%; font-size: 15px; line-height: 1.5; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .msg-user { background: rgba(0, 229, 255, 0.1); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; border: 1px solid rgba(0, 229, 255, 0.2); }
-        .msg-ai { background: rgba(66, 133, 244, 0.1); color: #fff; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid rgba(66, 133, 244, 0.2); }
-        .typing-indicator { color: var(--ai-color); font-size: 14px; font-style: italic; display: none; margin-top: 10px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
-
         /* Навігація */
         .bottom-nav { position: fixed; bottom: env(safe-area-inset-bottom); left: 10px; right: 10px; height: 70px; background: rgba(11, 14, 20, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--card-border); border-radius: 25px; display: flex; justify-content: space-around; align-items: center; z-index: 999; margin-bottom: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 10px; font-weight: 600; width: 20%; background: none; border: none; transition: 0.3s; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 10px; font-weight: 600; width: 25%; background: none; border: none; transition: 0.3s; }
         .nav-item.active { color: var(--accent-color); transform: translateY(-3px); }
-        .nav-item.active-ai { color: var(--ai-color); text-shadow: 0 0 10px var(--ai-glow); }
         .nav-icon { font-size: 22px; margin-bottom: 4px; }
     </style>
 </head>
@@ -153,29 +140,6 @@
         </div>
     </div>
 
-    <div id="screen-ai" class="app-screen">
-        <div class="widget" id="api-key-setup">
-            <h3 style="margin-bottom: 15px; color: var(--ai-color);">Підключення Gemini AI</h3>
-            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 15px; line-height: 1.5;">
-                Вставте ваш API-ключ. Він зберігається лише на вашому iPhone локально.
-            </p>
-            <input type="password" id="gemini-key" placeholder="AQ.Ab8...">
-            <button class="btn-submit btn-ai" onclick="saveApiKey()">Зберегти Ключ</button>
-        </div>
-
-        <div class="widget" id="ai-chat-interface" style="display: none; padding: 15px;">
-            <div class="chat-container" id="chat-history">
-                <div class="chat-msg msg-ai">Привіт! Я ваш ШІ-аналітик на базі Google Gemini. Я маю доступ до складу вашого портфеля. Запитайте мене про ризики, поради чи тренди ринку.</div>
-            </div>
-            <div class="typing-indicator" id="ai-typing">Gemini генерує відповідь...</div>
-            
-            <div style="display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid var(--card-border); padding-top: 15px;">
-                <input type="text" id="ai-prompt" placeholder="Напр: Чи збалансований мій портфель?" style="margin-bottom: 0;">
-                <button class="btn-submit btn-ai" style="width: 60px; margin-top: 0; padding: 0; border-radius: 12px;" onclick="sendToAI()">➔</button>
-            </div>
-        </div>
-    </div>
-
     <nav class="bottom-nav">
         <button class="nav-item active" onclick="switchScreen('dashboard', 'Огляд', this)">
             <div class="nav-icon">◱</div><div>Огляд</div>
@@ -189,9 +153,6 @@
         <button class="nav-item" onclick="switchScreen('mydata', 'Портфель', this)">
             <div class="nav-icon">❖</div><div>Активи</div>
         </button>
-        <button class="nav-item" onclick="switchScreen('ai', 'ШІ Аналітик', this, true)">
-            <div class="nav-icon">✧</div><div>Gemini</div>
-        </button>
     </nav>
 
     <script>
@@ -201,103 +162,15 @@
         let myPortfolio = JSON.parse(localStorage.getItem('myCryptoPortfolio')) || [];
         let chartInstance = null;
 
-        function switchScreen(screenId, title, element, isAI = false) {
+        function switchScreen(screenId, title, element) {
             document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(i => { i.classList.remove('active'); i.classList.remove('active-ai'); });
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             document.getElementById('screen-' + screenId).classList.add('active');
             document.getElementById('screen-title').innerText = title;
-            if(isAI) {
-                element.classList.add('active-ai');
-                document.getElementById('screen-title').style.color = 'var(--ai-color)';
-            } else {
-                element.classList.add('active');
-                document.getElementById('screen-title').style.color = 'var(--text-color)';
-            }
+            element.classList.add('active');
         }
 
-        // --- ЛОГІКА GOOGLE GEMINI API ---
-        function checkApiKey() {
-            const key = localStorage.getItem('neoGeminiKey');
-            if (key) {
-                document.getElementById('api-key-setup').style.display = 'none';
-                document.getElementById('ai-chat-interface').style.display = 'block';
-            }
-        }
-
-        function saveApiKey() {
-            const key = document.getElementById('gemini-key').value;
-            // Перевіряємо лише довжину, бо формати ключів Google можуть бути різними (AIza..., AQ... тощо)
-            if (key.length > 30) { 
-                localStorage.setItem('neoGeminiKey', key);
-                checkApiKey();
-            } else {
-                alert("Схоже, це неповний ключ. Перевірте його ще раз.");
-            }
-        }
-
-        async function sendToAI() {
-            const promptInput = document.getElementById('ai-prompt');
-            const message = promptInput.value.trim();
-            if(!message) return;
-
-            const chatHistory = document.getElementById('chat-history');
-            const typingInd = document.getElementById('ai-typing');
-            const apiKey = localStorage.getItem('neoGeminiKey');
-
-            chatHistory.innerHTML += `<div class="chat-msg msg-user">${message}</div>`;
-            promptInput.value = '';
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-            typingInd.style.display = 'block';
-
-            let portfolioContext = "Ось мій поточний крипто-портфель: ";
-            if (myPortfolio.length === 0) portfolioContext += "наразі порожній.";
-            else {
-                myPortfolio.forEach(item => {
-                    portfolioContext += `${item.amount} шт. ${item.name} (початкова ціна купівлі $${item.price}); `;
-                });
-            }
-
-            const systemPrompt = `Ти - крутий фінансовий ШІ-асистент у крипто-додатку. Відповідай українською. Будь лаконічним, давай конкретні поради. Не пиши довгих вступів. ${portfolioContext}`;
-            const finalPrompt = `Контекст: ${systemPrompt}\n\nЗапитання користувача: ${message}`;
-
-            try {
-                // Використовуємо -latest версію для уникнення помилки v1beta unsupported
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
-                
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{ text: finalPrompt }]
-                        }]
-                    })
-                });
-
-                const data = await response.json();
-                typingInd.style.display = 'none';
-                
-                if(data.error) {
-                    let errMsg = data.error.message;
-                    chatHistory.innerHTML += `<div class="chat-msg msg-ai" style="background:var(--danger-color)">Помилка API: ${errMsg}</div>`;
-                } else if (data.candidates && data.candidates.length > 0) {
-                    let aiReply = data.candidates[0].content.parts[0].text;
-                    aiReply = aiReply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                    aiReply = aiReply.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                    
-                    chatHistory.innerHTML += `<div class="chat-msg msg-ai">${aiReply}</div>`;
-                } else {
-                    chatHistory.innerHTML += `<div class="chat-msg msg-ai" style="background:var(--danger-color)">Отримано порожню відповідь.</div>`;
-                }
-
-            } catch (error) {
-                typingInd.style.display = 'none';
-                chatHistory.innerHTML += `<div class="chat-msg msg-ai" style="background:var(--danger-color)">Помилка з'єднання з Google API. Перевірте інтернет.</div>`;
-            }
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-
-        // --- ІНІЦІАЛІЗАЦІЯ ІНШИХ ВІДЖЕТІВ ---
+        // --- ІНІЦІАЛІЗАЦІЯ ВІДЖЕТІВ ТА ПОРТФЕЛЯ ---
         function updatePortfolioUI() {
             const list = document.getElementById('portfolio-list');
             list.innerHTML = '';
@@ -331,7 +204,7 @@
             if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(ctx, {
                 type: 'doughnut',
-                data: { labels: labels, datasets: [{ data: dataValues, backgroundColor: ['#00E5FF', '#00FF88', '#FFD700', '#4285F4', '#FF2A55'], borderColor: '#0B0E14' }] },
+                data: { labels: labels, datasets: [{ data: dataValues, backgroundColor: ['#00E5FF', '#00FF88', '#FFD700', '#FF8A65', '#FF2A55'], borderColor: '#0B0E14' }] },
                 options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'right', labels: { color: '#fff', font: { size: 10 } } } } }
             });
         }
@@ -397,7 +270,6 @@
         window.deletePortfolioItem = function(index) { myPortfolio.splice(index, 1); localStorage.setItem('myCryptoPortfolio', JSON.stringify(myPortfolio)); updatePortfolioUI(); }
         
         // Старт
-        checkApiKey();
         updatePortfolioUI();
         fetchMarketData();
 
