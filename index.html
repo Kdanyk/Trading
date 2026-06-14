@@ -266,6 +266,51 @@
             const finalPrompt = `Контекст: ${systemPrompt}\n\nЗапитання користувача: ${message}`;
 
             try {
+                // ВИПРАВЛЕННЯ: Змінено назву моделі на gemini-1.5-flash-latest
+                // Якщо раптом знову буде помилка, замініть "gemini-1.5-flash-latest" на "gemini-pro"
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: finalPrompt }]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                typingInd.style.display = 'none';
+                
+                if(data.error) {
+                    let errMsg = data.error.message;
+                    chatHistory.innerHTML += `<div class="chat-msg msg-ai" style="background:var(--danger-color)">Помилка API: ${errMsg}</div>`;
+                } else if (data.candidates && data.candidates.length > 0) {
+                    // Конвертуємо **жирний текст** з markdown у HTML
+                    let aiReply = data.candidates[0].content.parts[0].text;
+                    aiReply = aiReply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    aiReply = aiReply.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                    
+                    chatHistory.innerHTML += `<div class="chat-msg msg-ai">${aiReply}</div>`;
+                } else {
+                    chatHistory.innerHTML += `<div class="chat-msg msg-ai" style="background:var(--danger-color)">Отримано порожню відповідь від ШІ.</div>`;
+                }
+
+            } catch (error) {
+                typingInd.style.display = 'none';
+                chatHistory.innerHTML += `<div class="chat-msg msg-ai" style="background:var(--danger-color)">Помилка з'єднання з Google API. Перевірте інтернет.</div>`;
+            }
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+            // Інструкції для Gemini
+            const systemPrompt = `Ти - крутий фінансовий ШІ-асистент у крипто-додатку. Відповідай українською. Будь лаконічним, давай конкретні поради. Не пиши довгих вступів. ${portfolioContext}`;
+            
+            // Фінальний запит
+            const finalPrompt = `Контекст: ${systemPrompt}\n\nЗапитання користувача: ${message}`;
+
+            try {
                 // Виклик Gemini 1.5 Flash API
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
                 
