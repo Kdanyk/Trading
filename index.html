@@ -18,7 +18,8 @@
             --card-bg: rgba(255, 255, 255, 0.03);
             --card-border: rgba(255, 255, 255, 0.08);
             --accent-color: #00E5FF; 
-            --ai-color: #B534FF; /* Спеціальний колір для ШІ */
+            --ai-color: #4285F4; /* Колір Google Gemini (Синій) */
+            --ai-glow: rgba(66, 133, 244, 0.4);
             --danger-color: #FF2A55;
             --success-color: #00FF88;
             --text-color: #F8FAFC;
@@ -29,9 +30,9 @@
         body { background: var(--bg-gradient); color: var(--text-color); padding-top: env(safe-area-inset-top); padding-bottom: calc(90px + env(safe-area-inset-bottom)); min-height: 100vh; overflow-x: hidden; }
         header { padding: 25px 20px 15px; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
         
-        .app-screen { display: none; padding: 10px 15px; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .app-screen { display: none; padding: 10px 15px; animation: slideUp 0.4s ease; }
         .app-screen.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
         .widget { background: var(--card-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 20px; padding: 22px; margin-bottom: 15px; border: 1px solid var(--card-border); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); }
         .balance-title { font-size: 13px; color: var(--text-secondary); font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px;}
@@ -47,10 +48,6 @@
         .segmented-control { display: flex; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 4px; margin-bottom: 20px; border: 1px solid var(--card-border); }
         .segment-btn { flex: 1; text-align: center; padding: 10px; border-radius: 8px; font-size: 14px; color: var(--text-secondary); font-weight: 600; transition: all 0.3s; }
         .segment-btn.active { background: var(--accent-color); color: #000; box-shadow: 0 0 15px rgba(0, 229, 255, 0.3); }
-        .sort-controls { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
-        .sort-controls::-webkit-scrollbar { display: none; }
-        .sort-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); color: var(--text-secondary); padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; }
-        .sort-btn.active { color: var(--accent-color); border-color: var(--accent-color); background: rgba(0, 229, 255, 0.1); }
 
         .coin-item { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid var(--card-border); }
         .coin-item:last-child { border-bottom: none; }
@@ -65,8 +62,8 @@
         .input-group { position: relative; margin-bottom: 15px; }
         input { width: 100%; padding: 16px; background: rgba(0,0,0,0.2); border: 1px solid var(--card-border); border-radius: 12px; color: white; font-size: 16px; transition: border-color 0.3s; }
         input:focus { outline: none; border-color: var(--accent-color); }
-        button.btn-submit { background: var(--accent-color); color: #000; font-weight: 700; border: none; padding: 16px; width: 100%; border-radius: 12px; font-size: 16px; margin-top: 10px; box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3); }
-        button.btn-ai { background: var(--ai-color); box-shadow: 0 4px 15px rgba(181, 52, 255, 0.3); }
+        button.btn-submit { background: var(--accent-color); color: #000; font-weight: 700; border: none; padding: 16px; width: 100%; border-radius: 12px; font-size: 16px; margin-top: 10px; box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3); cursor: pointer;}
+        button.btn-ai { background: var(--ai-color); color: #fff; box-shadow: 0 4px 15px var(--ai-glow); }
 
         .autocomplete-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: #1A2130; border: 1px solid var(--card-border); border-radius: 12px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.5); margin-top: 8px;}
         .ac-item { padding: 14px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 12px; font-size: 14px; }
@@ -74,17 +71,19 @@
         .tradingview-container { height: 480px; width: 100%; border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
 
         /* --- СТИЛІ ДЛЯ ЧАТУ З ШІ --- */
-        .chat-container { height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding-bottom: 10px; }
-        .chat-msg { padding: 12px 16px; border-radius: 16px; max-width: 85%; font-size: 15px; line-height: 1.4; }
+        .chat-container { height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding-bottom: 10px; scrollbar-width: none; }
+        .chat-container::-webkit-scrollbar { display: none; }
+        .chat-msg { padding: 14px 18px; border-radius: 18px; max-width: 85%; font-size: 15px; line-height: 1.5; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .msg-user { background: rgba(0, 229, 255, 0.1); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; border: 1px solid rgba(0, 229, 255, 0.2); }
-        .msg-ai { background: rgba(181, 52, 255, 0.1); color: #fff; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid rgba(181, 52, 255, 0.2); }
-        .typing-indicator { color: var(--ai-color); font-size: 14px; font-style: italic; display: none; }
+        .msg-ai { background: rgba(66, 133, 244, 0.1); color: #fff; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid rgba(66, 133, 244, 0.2); }
+        .typing-indicator { color: var(--ai-color); font-size: 14px; font-style: italic; display: none; margin-top: 10px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        /* Навігація - Тепер 5 елементів */
+        /* Навігація */
         .bottom-nav { position: fixed; bottom: env(safe-area-inset-bottom); left: 10px; right: 10px; height: 70px; background: rgba(11, 14, 20, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--card-border); border-radius: 25px; display: flex; justify-content: space-around; align-items: center; z-index: 999; margin-bottom: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 10px; font-weight: 600; width: 20%; background: none; border: none; transition: 0.3s; }
         .nav-item.active { color: var(--accent-color); transform: translateY(-3px); }
-        .nav-item.active-ai { color: var(--ai-color); text-shadow: 0 0 10px rgba(181,52,255,0.5); }
+        .nav-item.active-ai { color: var(--ai-color); text-shadow: 0 0 10px var(--ai-glow); }
         .nav-icon { font-size: 22px; margin-bottom: 4px; }
     </style>
 </head>
@@ -136,7 +135,7 @@
             <h3 style="margin-bottom: 20px; font-weight: 700;">Нова транзакція</h3>
             <form id="crypto-form">
                 <div class="input-group">
-                    <input type="text" id="coin-name" placeholder="Пошук монети (напр. BTC)..." autocomplete="off" required>
+                    <input type="text" id="coin-name" placeholder="Назва монети (напр. BTC)..." autocomplete="off" required>
                     <div id="autocomplete-results" class="autocomplete-dropdown"></div>
                 </div>
                 <div class="input-group">
@@ -156,21 +155,23 @@
 
     <div id="screen-ai" class="app-screen">
         <div class="widget" id="api-key-setup">
-            <h3 style="margin-bottom: 15px; color: var(--ai-color);">Підключення ШІ</h3>
-            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 15px;">Введіть ваш ключ OpenAI API. Він зберігається локально на вашому iPhone.</p>
-            <input type="password" id="openai-key" placeholder="sk-proj-...">
+            <h3 style="margin-bottom: 15px; color: var(--ai-color);">Підключення Gemini AI</h3>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 15px; line-height: 1.5;">
+                Отримайте безкоштовний ключ на <strong>Google AI Studio</strong> та вставте його сюди. Він зберігається лише на вашому iPhone.
+            </p>
+            <input type="password" id="gemini-key" placeholder="AIzaSy...">
             <button class="btn-submit btn-ai" onclick="saveApiKey()">Зберегти Ключ</button>
         </div>
 
-        <div class="widget" id="ai-chat-interface" style="display: none;">
+        <div class="widget" id="ai-chat-interface" style="display: none; padding: 15px;">
             <div class="chat-container" id="chat-history">
-                <div class="chat-msg msg-ai">Привіт! Я ваш ШІ-аналітик. Я бачу ваш портфель. Запитайте мене про ризики, диверсифікацію або прогнози.</div>
+                <div class="chat-msg msg-ai">Привіт! Я ваш ШІ-аналітик на базі Google Gemini. Я маю доступ до складу вашого портфеля. Запитайте мене про ризики, поради чи тренди ринку.</div>
             </div>
-            <div class="typing-indicator" id="ai-typing">Аналізую дані ринку...</div>
+            <div class="typing-indicator" id="ai-typing">Gemini генерує відповідь...</div>
             
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <input type="text" id="ai-prompt" placeholder="Наприклад: Чи варто докупити SOL?" style="margin-bottom: 0;">
-                <button class="btn-submit btn-ai" style="width: 60px; margin-top: 0; padding: 0;" onclick="sendToAI()">➔</button>
+            <div style="display: flex; gap: 10px; margin-top: 15px; border-top: 1px solid var(--card-border); padding-top: 15px;">
+                <input type="text" id="ai-prompt" placeholder="Напр: Чи збалансований мій портфель?" style="margin-bottom: 0;">
+                <button class="btn-submit btn-ai" style="width: 60px; margin-top: 0; padding: 0; border-radius: 12px;" onclick="sendToAI()">➔</button>
             </div>
         </div>
     </div>
@@ -189,25 +190,20 @@
             <div class="nav-icon">❖</div><div>Активи</div>
         </button>
         <button class="nav-item" onclick="switchScreen('ai', 'ШІ Аналітик', this, true)">
-            <div class="nav-icon">⚡</div><div>ШІ</div>
+            <div class="nav-icon">✧</div><div>Gemini</div>
         </button>
     </nav>
 
     <script>
-        // --- Базові змінні та функції ---
         let marketData = [];
         let currentMarketView = 'all';
-        let currentSort = 'rank';
         let myFavorites = JSON.parse(localStorage.getItem('myFavorites')) || [];
         let myPortfolio = JSON.parse(localStorage.getItem('myCryptoPortfolio')) || [];
         let chartInstance = null;
 
         function switchScreen(screenId, title, element, isAI = false) {
             document.querySelectorAll('.app-screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(i => {
-                i.classList.remove('active');
-                i.classList.remove('active-ai');
-            });
+            document.querySelectorAll('.nav-item').forEach(i => { i.classList.remove('active'); i.classList.remove('active-ai'); });
             document.getElementById('screen-' + screenId).classList.add('active');
             document.getElementById('screen-title').innerText = title;
             if(isAI) {
@@ -219,9 +215,9 @@
             }
         }
 
-        // --- ЛОГІКА ШІ АНАЛІТИКА ---
+        // --- ЛОГІКА GOOGLE GEMINI API ---
         function checkApiKey() {
-            const key = localStorage.getItem('neoAiKey');
+            const key = localStorage.getItem('neoGeminiKey');
             if (key) {
                 document.getElementById('api-key-setup').style.display = 'none';
                 document.getElementById('ai-chat-interface').style.display = 'block';
@@ -229,12 +225,12 @@
         }
 
         function saveApiKey() {
-            const key = document.getElementById('openai-key').value;
-            if (key.length > 20) {
-                localStorage.setItem('neoAiKey', key);
+            const key = document.getElementById('gemini-key').value;
+            if (key.length > 30 && key.startsWith('AIza')) { // Проста перевірка формату ключа Google
+                localStorage.setItem('neoGeminiKey', key);
                 checkApiKey();
             } else {
-                alert("Некоректний ключ API");
+                alert("Схоже, це не ключ Gemini. Перевірте його ще раз.");
             }
         }
 
@@ -245,40 +241,40 @@
 
             const chatHistory = document.getElementById('chat-history');
             const typingInd = document.getElementById('ai-typing');
-            const apiKey = localStorage.getItem('neoAiKey');
+            const apiKey = localStorage.getItem('neoGeminiKey');
 
-            // Показуємо повідомлення користувача
+            // Додаємо повідомлення користувача в чат
             chatHistory.innerHTML += `<div class="chat-msg msg-user">${message}</div>`;
             promptInput.value = '';
             chatHistory.scrollTop = chatHistory.scrollHeight;
             typingInd.style.display = 'block';
 
-            // Формуємо контекст портфеля для ШІ
-            let portfolioContext = "Мій поточний крипто-портфель: ";
-            if (myPortfolio.length === 0) portfolioContext += "порожній.";
+            // Формуємо контекст портфеля
+            let portfolioContext = "Ось мій поточний крипто-портфель: ";
+            if (myPortfolio.length === 0) portfolioContext += "наразі порожній.";
             else {
                 myPortfolio.forEach(item => {
-                    portfolioContext += `${item.amount} шт. ${item.name} (куплено по $${item.price}); `;
+                    portfolioContext += `${item.amount} шт. ${item.name} (початкова ціна купівлі $${item.price}); `;
                 });
             }
 
-            const systemPrompt = `Ти - професійний крипто-аналітик. Твоє завдання допомагати користувачу. Будь коротким, використовуй фінансові терміни, але пояснюй просто. ${portfolioContext}`;
+            // Інструкції для Gemini
+            const systemPrompt = `Ти - крутий фінансовий ШІ-асистент у крипто-додатку. Відповідай українською. Будь лаконічним, давай конкретні поради. Не пиши довгих вступів. ${portfolioContext}`;
+            
+            // Фінальний запит
+            const finalPrompt = `Контекст: ${systemPrompt}\n\nЗапитання користувача: ${message}`;
 
             try {
-                // Запит до OpenAI
-                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                // Виклик Gemini 1.5 Flash API
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(url, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        model: "gpt-3.5-turbo",
-                        messages: [
-                            { role: "system", content: systemPrompt },
-                            { role: "user", content: message }
-                        ],
-                        max_tokens: 300
+                        contents: [{
+                            parts: [{ text: finalPrompt }]
+                        }]
                     })
                 });
 
@@ -286,22 +282,29 @@
                 typingInd.style.display = 'none';
                 
                 if(data.error) {
-                    chatHistory.innerHTML += `<div class="chat-msg msg-ai" style="background:var(--danger-color)">Помилка API: ${data.error.message}</div>`;
-                } else {
-                    const aiReply = data.choices[0].message.content;
+                    let errMsg = data.error.message;
+                    if(data.error.code === 400 && errMsg.includes('API key not valid')) errMsg = "Недійсний API ключ.";
+                    chatHistory.innerHTML += `<div class="chat-msg msg-ai" style="background:var(--danger-color)">Помилка API: ${errMsg}</div>`;
+                } else if (data.candidates && data.candidates.length > 0) {
+                    // Конвертуємо **жирний текст** з markdown у HTML (простий парсинг)
+                    let aiReply = data.candidates[0].content.parts[0].text;
+                    aiReply = aiReply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    aiReply = aiReply.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                    
                     chatHistory.innerHTML += `<div class="chat-msg msg-ai">${aiReply}</div>`;
+                } else {
+                    chatHistory.innerHTML += `<div class="chat-msg msg-ai" style="background:var(--danger-color)">Отримано порожню відповідь.</div>`;
                 }
 
             } catch (error) {
                 typingInd.style.display = 'none';
-                chatHistory.innerHTML += `<div class="chat-msg msg-ai" style="background:var(--danger-color)">Помилка з'єднання. Перевірте інтернет.</div>`;
+                chatHistory.innerHTML += `<div class="chat-msg msg-ai" style="background:var(--danger-color)">Помилка з'єднання з Google API. Перевірте інтернет.</div>`;
             }
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
 
-        // --- Ініціалізація іншого функціоналу ---
+        // --- ІНІЦІАЛІЗАЦІЯ ІНШИХ ВІДЖЕТІВ ---
         function updatePortfolioUI() {
-            // (Логіка збережена з попередньої версії)
             const list = document.getElementById('portfolio-list');
             list.innerHTML = '';
             let totalInvested = 0;
@@ -334,7 +337,7 @@
             if (chartInstance) chartInstance.destroy();
             chartInstance = new Chart(ctx, {
                 type: 'doughnut',
-                data: { labels: labels, datasets: [{ data: dataValues, backgroundColor: ['#00E5FF', '#00FF88', '#FFD700', '#B534FF', '#FF2A55'], borderColor: '#0B0E14' }] },
+                data: { labels: labels, datasets: [{ data: dataValues, backgroundColor: ['#00E5FF', '#00FF88', '#FFD700', '#4285F4', '#FF2A55'], borderColor: '#0B0E14' }] },
                 options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'right', labels: { color: '#fff', font: { size: 10 } } } } }
             });
         }
@@ -344,7 +347,7 @@
                 const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false');
                 marketData = await response.json();
                 renderMarket();
-            } catch (error) { console.log('Помилка API'); }
+            } catch (error) { console.log('Помилка API', error); }
         }
 
         function renderMarket() {
@@ -360,6 +363,36 @@
             });
         }
 
+        // Автозаповнення назви монети (Search Autocomplete)
+        const searchInput = document.getElementById('coin-name');
+        const priceInput = document.getElementById('coin-price');
+        const acDropdown = document.getElementById('autocomplete-results');
+
+        searchInput.addEventListener('input', function() {
+            const val = this.value.toLowerCase();
+            acDropdown.innerHTML = '';
+            if (!val) { acDropdown.style.display = 'none'; return; }
+
+            const matches = marketData.filter(c => c.name.toLowerCase().includes(val) || c.symbol.toLowerCase().includes(val)).slice(0, 5);
+            
+            if (matches.length > 0) {
+                acDropdown.style.display = 'block';
+                matches.forEach(coin => {
+                    const div = document.createElement('div');
+                    div.className = 'ac-item';
+                    div.innerHTML = `<img src="${coin.image}" style="width:24px; border-radius:50%;"> <span>${coin.name} (${coin.symbol.toUpperCase()})</span>`;
+                    div.onclick = function() {
+                        searchInput.value = coin.symbol.toUpperCase();
+                        priceInput.value = coin.current_price;
+                        acDropdown.style.display = 'none';
+                    };
+                    acDropdown.appendChild(div);
+                });
+            } else acDropdown.style.display = 'none';
+        });
+
+        document.addEventListener('click', (e) => { if (!searchInput.contains(e.target) && !acDropdown.contains(e.target)) acDropdown.style.display = 'none'; });
+
         document.getElementById('crypto-form').addEventListener('submit', function(e) {
             e.preventDefault();
             myPortfolio.push({ name: document.getElementById('coin-name').value.toUpperCase(), price: parseFloat(document.getElementById('coin-price').value), amount: parseFloat(document.getElementById('coin-amount').value) });
@@ -370,6 +403,7 @@
 
         window.deletePortfolioItem = function(index) { myPortfolio.splice(index, 1); localStorage.setItem('myCryptoPortfolio', JSON.stringify(myPortfolio)); updatePortfolioUI(); }
         
+        // Старт
         checkApiKey();
         updatePortfolioUI();
         fetchMarketData();
