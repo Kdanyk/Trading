@@ -18,7 +18,7 @@
             --card-bg: rgba(255, 255, 255, 0.03);
             --card-border: rgba(255, 255, 255, 0.08);
             --accent-color: #00E5FF; 
-            --ai-color: #4285F4; /* Колір Google Gemini (Синій) */
+            --ai-color: #4285F4;
             --ai-glow: rgba(66, 133, 244, 0.4);
             --danger-color: #FF2A55;
             --success-color: #00FF88;
@@ -157,9 +157,9 @@
         <div class="widget" id="api-key-setup">
             <h3 style="margin-bottom: 15px; color: var(--ai-color);">Підключення Gemini AI</h3>
             <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 15px; line-height: 1.5;">
-                Отримайте безкоштовний ключ на <strong>Google AI Studio</strong> та вставте його сюди. Він зберігається лише на вашому iPhone.
+                Вставте ваш API-ключ. Він зберігається лише на вашому iPhone локально.
             </p>
-            <input type="password" id="gemini-key" placeholder="AIzaSy...">
+            <input type="password" id="gemini-key" placeholder="AQ.Ab8...">
             <button class="btn-submit btn-ai" onclick="saveApiKey()">Зберегти Ключ</button>
         </div>
 
@@ -226,7 +226,7 @@
 
         function saveApiKey() {
             const key = document.getElementById('gemini-key').value;
-            // Перевіряємо лише довжину, оскільки формати ключів Google змінилися (AIza..., AQ... тощо)
+            // Перевіряємо лише довжину, бо формати ключів Google можуть бути різними (AIza..., AQ... тощо)
             if (key.length > 30) { 
                 localStorage.setItem('neoGeminiKey', key);
                 checkApiKey();
@@ -244,13 +244,11 @@
             const typingInd = document.getElementById('ai-typing');
             const apiKey = localStorage.getItem('neoGeminiKey');
 
-            // Додаємо повідомлення користувача в чат
             chatHistory.innerHTML += `<div class="chat-msg msg-user">${message}</div>`;
             promptInput.value = '';
             chatHistory.scrollTop = chatHistory.scrollHeight;
             typingInd.style.display = 'block';
 
-            // Формуємо контекст портфеля
             let portfolioContext = "Ось мій поточний крипто-портфель: ";
             if (myPortfolio.length === 0) portfolioContext += "наразі порожній.";
             else {
@@ -259,15 +257,11 @@
                 });
             }
 
-            // Інструкції для Gemini
             const systemPrompt = `Ти - крутий фінансовий ШІ-асистент у крипто-додатку. Відповідай українською. Будь лаконічним, давай конкретні поради. Не пиши довгих вступів. ${portfolioContext}`;
-            
-            // Фінальний запит
             const finalPrompt = `Контекст: ${systemPrompt}\n\nЗапитання користувача: ${message}`;
 
             try {
-                // ВИПРАВЛЕННЯ: Змінено назву моделі на gemini-1.5-flash-latest
-                // Якщо раптом знову буде помилка, замініть "gemini-1.5-flash-latest" на "gemini-pro"
+                // Використовуємо -latest версію для уникнення помилки v1beta unsupported
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(url, {
@@ -287,52 +281,6 @@
                     let errMsg = data.error.message;
                     chatHistory.innerHTML += `<div class="chat-msg msg-ai" style="background:var(--danger-color)">Помилка API: ${errMsg}</div>`;
                 } else if (data.candidates && data.candidates.length > 0) {
-                    // Конвертуємо **жирний текст** з markdown у HTML
-                    let aiReply = data.candidates[0].content.parts[0].text;
-                    aiReply = aiReply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                    aiReply = aiReply.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                    
-                    chatHistory.innerHTML += `<div class="chat-msg msg-ai">${aiReply}</div>`;
-                } else {
-                    chatHistory.innerHTML += `<div class="chat-msg msg-ai" style="background:var(--danger-color)">Отримано порожню відповідь від ШІ.</div>`;
-                }
-
-            } catch (error) {
-                typingInd.style.display = 'none';
-                chatHistory.innerHTML += `<div class="chat-msg msg-ai" style="background:var(--danger-color)">Помилка з'єднання з Google API. Перевірте інтернет.</div>`;
-            }
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-
-            // Інструкції для Gemini
-            const systemPrompt = `Ти - крутий фінансовий ШІ-асистент у крипто-додатку. Відповідай українською. Будь лаконічним, давай конкретні поради. Не пиши довгих вступів. ${portfolioContext}`;
-            
-            // Фінальний запит
-            const finalPrompt = `Контекст: ${systemPrompt}\n\nЗапитання користувача: ${message}`;
-
-            try {
-                // Виклик Gemini 1.5 Flash API
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-                
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{
-                            parts: [{ text: finalPrompt }]
-                        }]
-                    })
-                });
-
-                const data = await response.json();
-                typingInd.style.display = 'none';
-                
-                if(data.error) {
-                    let errMsg = data.error.message;
-                    if(data.error.code === 400 && errMsg.includes('API key not valid')) errMsg = "Недійсний API ключ.";
-                    chatHistory.innerHTML += `<div class="chat-msg msg-ai" style="background:var(--danger-color)">Помилка API: ${errMsg}</div>`;
-                } else if (data.candidates && data.candidates.length > 0) {
-                    // Конвертуємо **жирний текст** з markdown у HTML (простий парсинг)
                     let aiReply = data.candidates[0].content.parts[0].text;
                     aiReply = aiReply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                     aiReply = aiReply.replace(/\*(.*?)\*/g, '<em>$1</em>');
@@ -409,7 +357,6 @@
             });
         }
 
-        // Автозаповнення назви монети (Search Autocomplete)
         const searchInput = document.getElementById('coin-name');
         const priceInput = document.getElementById('coin-price');
         const acDropdown = document.getElementById('autocomplete-results');
