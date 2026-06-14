@@ -226,11 +226,12 @@
 
         function saveApiKey() {
             const key = document.getElementById('gemini-key').value;
-            if (key.length > 30 && key.startsWith('AIza')) { // Проста перевірка формату ключа Google
+            // Перевіряємо лише довжину, оскільки формати ключів Google змінилися (AIza..., AQ... тощо)
+            if (key.length > 30) { 
                 localStorage.setItem('neoGeminiKey', key);
                 checkApiKey();
             } else {
-                alert("Схоже, це не ключ Gemini. Перевірте його ще раз.");
+                alert("Схоже, це неповний ключ. Перевірте його ще раз.");
             }
         }
 
